@@ -39,18 +39,44 @@ public class AVLTree {
 					currentNode.getRight().setParent(currentNode);
 					while (currentNode != this.head){
 						currentNode.setWeight();
-						if (currentNode.getWeight() > 1 ){
-							rotateLeft(currentNode);
-							System.out.println("We have a weight greater than or equal 2 at " + currentNode.getValue());
-							return; //TODO Attention
+						if (currentNode.getWeight() > 1 ){ //Subtree is right heavy
+							currentNode.getRight().setWeight();
+							if (currentNode.getRight().getWeight() < 0) { //Subtree is left heavy
+								rotateDoubleLeft(currentNode);
+							} else {
+								rotateLeft(currentNode);
+							}
+							
+							return; 
+						} else if (currentNode.getWeight() < -1) { //subtree is left heavy
+							currentNode.getLeft().setWeight();
+							if (currentNode.getLeft().getWeight() > 0){ //Subtree is right heavy
+								rotateDoubleRight(currentNode);
+							} else {
+								rotateRight(currentNode);
+							}
+							return;
 						}
 						currentNode = currentNode.getParent(); //Move back up the tree
 					}
 					if (currentNode == this.head){
 						currentNode.setWeight();
-						if (currentNode.getWeight() > Math.abs(1)){
-							rotateLeft(currentNode);
-							System.out.println("We have a weight greater than or equal 2 at " + currentNode.getValue());
+						if (currentNode.getWeight() > 1 ){ //Subtree is right heavy
+							currentNode.getRight().setWeight();
+							if (currentNode.getRight().getWeight() < 0) { //Subtree is left heavy
+								rotateDoubleLeft(currentNode);
+							} else {
+								rotateLeft(currentNode);
+							}
+							
+							return; 
+						} else if (currentNode.getWeight() < -1) { //subtree is left heavy
+							currentNode.getLeft().setWeight();
+							if (currentNode.getLeft().getWeight() > 0){ //Subtree is right heavy
+								rotateDoubleRight(currentNode);
+							} else {
+								rotateRight(currentNode);
+							}
 							return;
 						}
 					}
@@ -68,18 +94,53 @@ public class AVLTree {
 					currentNode.getLeft().setParent(currentNode);
 					while (currentNode != this.head){
 						currentNode.setWeight();
-						if (currentNode.getWeight() > Math.abs(1)){
-							//Do some rotation or something
-							System.out.println("We have a weight greater than or equal 2 at " + currentNode.getValue());
+						
+						if (currentNode.getWeight() > 1 ){ //Subtree is right heavy
+							currentNode.getRight().setWeight();
+							if (currentNode.getRight().getWeight() < 0) { //Subtree is left heavy
+								rotateDoubleLeft(currentNode);
+							} else {
+								rotateLeft(currentNode);
+							}
+							
+							return; 
+						} else if (currentNode.getWeight() < -1) { //subtree is left heavy
+							currentNode.getLeft().setWeight();
+							if (currentNode.getLeft().getWeight() > 0){ //Subtree is right heavy
+								rotateDoubleRight(currentNode);
+							} else {
+								rotateRight(currentNode);
+							}
+							return;
 						}
+						
+						
 						currentNode = currentNode.getParent(); //Move back up the tree
 					}
 					if (currentNode == this.head){
 						currentNode.setWeight();
-						if (currentNode.getWeight() > Math.abs(1)){
-							//Do some rotation or something
-							System.out.println("We have a weight greater than or equal 2 at " + currentNode.getValue());
+						
+						if (currentNode.getWeight() > 1 ){ //Subtree is right heavy
+							currentNode.getRight().setWeight();
+							if (currentNode.getRight().getWeight() < 0) { //Subtree is left heavy
+								rotateDoubleLeft(currentNode);
+							} else {
+								rotateLeft(currentNode);
+							}
+							
+							return; 
+						} else if (currentNode.getWeight() < -1) { //subtree is left heavy
+							currentNode.getLeft().setWeight();
+							if (currentNode.getLeft().getWeight() > 0){ //Subtree is right heavy
+								rotateDoubleRight(currentNode);
+							} else {
+								rotateRight(currentNode);
+							}
+							return;
 						}
+						
+						
+						
 					}
 					return;
 				} else {
@@ -112,11 +173,14 @@ public class AVLTree {
 			b.setParent(a.getParent());
 		} else { //Parent is null, so a is the head
 		this.setHead(b);
+		b.setParent(null);
 		}
 		
 		if(b.getLeft() != null) {
 			a.setRight(b.getLeft());
 		} else {
+			a.setRight(null);
+			if(a.getRight() == null && a.getLeft() == null)
 			a.setChildren(false);
 		}
 		
@@ -151,11 +215,14 @@ public class AVLTree {
 			b.setParent(a.getParent());
 		} else { //Parent is null, so a is the head
 		this.setHead(b);
+		b.setParent(null);
 		}
 		
 		if(b.getRight() != null) {
 			a.setLeft(b.getRight());
 		} else {
+			a.setLeft(null);
+			if(a.getRight() == null && a.getLeft() == null)
 			a.setChildren(false);
 		}
 		
@@ -174,9 +241,9 @@ public class AVLTree {
 
 	
 	
-
+     
 	public static void main(String[] args) {
-		int[] values = {2,3,1,5,6};
+		int[] values = {1,2,3,4,5};
 		
 		AVLTree myTree = new AVLTree();
 		
@@ -246,18 +313,18 @@ public class AVLTree {
 		public int countWeights(Node node){
 			if(node == null)
 				return 0;
-			if (!node.children){
+			if (!node.hasChildren()){
 				return 0;
 			} else {
-				if (node.right != null && node.left != null){
-				return countWeights(node.right) + countWeights(node.left);
+				if (node.getRight() != null && node.getLeft() != null){
+				return (countWeights(node.getRight()) + countWeights(node.getLeft()));
 			}
-				if (node.right != null){
-					return countWeights(node.right) + 1;
-				}
-				if (node.left != null){
-					return countWeights(node.left) + 1;
-				}
+				if (node.getRight() != null){
+					return countWeights(node.getRight()) + 1;
+				} 
+				if (node.getLeft() != null){
+					return countWeights(node.getLeft()) - 1;
+				} 
 		
 			return 0;	
 			}
@@ -268,7 +335,8 @@ public class AVLTree {
 			if (!this.children){
 				this.weight = 0;
 			} else {
-				this.weight = 1 + (countWeights(this.right) - countWeights(this.left));
+				
+				this.weight = (countWeights(this));
 			}
 		}
 
