@@ -14,8 +14,77 @@ public class AVLTree {
 		this.head = head;
 	}
 
+	
+	public Node findNode(int value) throws NullPointerException { //base case
+		if (this.head.getValue() == value){
+			return this.head;
+		} else {
+			return findNode(value, this.head);
+		}
+	}
+	
+	public Node findNode(int value, Node node) throws NullPointerException{
+		if (node == null){
+			return new Node(); //Not sure best way to handle this case. Depends on ultimate implementation of tree
+		}
+		if (node.getValue() == value){
+			return node;
+		} 
+		
+		if (value < node.getValue()){
+			return findNode(value, node.getLeft());
+		} 
+		
+		if (value > node.getValue()) {
+			return findNode(value, node.getRight());
+		}
+		
+		return null;
+		
+		
+	}
 
 
+	public void removeNode(int value){
+		Node removing = this.findNode(value);
+		if (removing.isNull){
+			System.out.println(value + removing.toString());
+		}
+		
+		if((removing.getRight() != null) && (removing.getLeft() != null)) { //Node has two children
+			Node largest = findLargest(removing.getLeft()); //Find largest value of left subtree
+			Node currentNode = largest.getParent();
+			currentNode.setRight(null);
+			
+			if (currentNode.getLeft() == null) { //No more children, yay
+				currentNode.setChildren(false);
+			}
+			
+			//Removing gets value of largest
+			removing.setValue(largest.getValue());
+			
+			//Now need to checkweights from parent of largest up to the head and rotate if necessary
+			while (currentNode != this.head) {
+				//Set weight of currentNode
+				currentNode.setWeight();
+				
+			}
+			
+		}
+		
+		
+	}
+	
+	public Node findLargest(Node start){
+		//From starting point, go right as far as possible
+		Node currentNode = start;
+		while(currentNode.getRight() != null){
+			currentNode = currentNode.getRight();
+		}
+		return currentNode;
+	}
+	
+	
 	public void addNode(int value){
 		
 		Node currentNode;
@@ -243,7 +312,7 @@ public class AVLTree {
 	
      
 	public static void main(String[] args) {
-		int[] values = {1,2,3,4,5};
+		int[] values = {1,2,3,4,5,7,6,9,8};
 		
 		AVLTree myTree = new AVLTree();
 		
@@ -251,7 +320,7 @@ public class AVLTree {
 			myTree.addNode(values[i]);
 		}
 		
-		myTree.head.getRight().setWeight();
+		System.out.println(myTree.findNode(11).toString());
 		
 	
 		
@@ -267,6 +336,7 @@ public class AVLTree {
 		private int weight;
 		private boolean children;
 		private Node parent;
+		private boolean isNull; //To be used in find method
 		
 		
 		public Node getParent() {
@@ -288,6 +358,11 @@ public class AVLTree {
 		public Node(int value){
 			this.value = value;
 			this.weight = 0;
+			this.isNull = false;
+		}
+		
+		public Node() {
+			this.isNull = true;
 		}
 		
 		public int getValue() {
@@ -311,22 +386,10 @@ public class AVLTree {
 		
 		
 		public int countWeights(Node node){
-			if(node == null)
-				return 0;
-			if (!node.hasChildren()){
+			if(node == null) {
 				return 0;
 			} else {
-				if (node.getRight() != null && node.getLeft() != null){
-				return (countWeights(node.getRight()) + countWeights(node.getLeft()));
-			}
-				if (node.getRight() != null){
-					return countWeights(node.getRight()) + 1;
-				} 
-				if (node.getLeft() != null){
-					return countWeights(node.getLeft()) - 1;
-				} 
-		
-			return 0;	
+				return (Math.max(countWeights(node.getLeft()) + 1, countWeights(node.getRight()) + 1));
 			}
 			
 		}
@@ -336,12 +399,21 @@ public class AVLTree {
 				this.weight = 0;
 			} else {
 				
-				this.weight = (countWeights(this));
+				this.weight = (countWeights(this.getRight()) - countWeights(this.getLeft()));
 			}
 		}
 
 		public int getWeight() {
 			return weight;
+		}
+
+		@Override
+		public String toString() {
+			if (this.isNull){
+				return "node does not exist.";
+			} else {
+				return Integer.toString(this.getValue());
+			}
 		}
 		
 		
